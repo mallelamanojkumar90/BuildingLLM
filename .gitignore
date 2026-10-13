@@ -90,7 +90,7 @@ data/*.parquet
 *.log
 wandb/
 
-# Deployment staging
-hf_space_dist/
-hf_space/
-hf_model_dist/
+# Temporary / scratch directories
+hf_*/
+scratch/
+

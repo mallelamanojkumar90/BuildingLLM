@@ -80,7 +80,8 @@ BuildingLLM/
 ├── dataset.py           # Step 3: PyTorch Dataset & shifted context windows (x -> y)
 ├── model.py             # Step 4: Pure PyTorch Decoder-Only Transformer
 ├── train.py             # Step 5: AdamW training loop, cosine LR scheduler, clipping
-├── generate.py          # Step 6: Text generation with Temperature, Top-K, Top-P
+├── generate.py          # Step 6: CLI text generation (Temperature, Top-K, Top-P, Repetition Penalty)
+├── app.py               # Step 7: Interactive local Gradio web UI (real-time token streaming)
 ├── requirements.txt     # Python package dependencies
 ├── .gitignore           # Ignores large datasets, caches, and checkpoints
 ├── README.md            # Comprehensive project documentation
@@ -144,11 +145,18 @@ python train.py --max_iters 300 --eval_interval 100 --batch_size 16
 python train.py --max_iters 1500 --eval_interval 200 --batch_size 32
 ```
 
-### 5. Generate Stories
-Prompt the trained model using interactive inference:
+### 5. Generate Stories (Terminal)
+Prompt the trained model using CLI inference:
 ```bash
 python generate.py "Once upon a time, Timmy found a magical key"
 ```
+
+### 6. Interactive Web Playground (Gradio)
+Launch the local web UI with real-time streaming story generation:
+```bash
+python app.py
+```
+Open **`http://localhost:7860`** in your browser. Includes interactive controls for Temperature, Top-K, Top-P, and Repetition Penalty.
 
 ---
 
