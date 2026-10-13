@@ -52,7 +52,8 @@ def generate_story_streaming(
     max_new_tokens: int = 150,
     temperature: float = 0.8,
     top_k: int = 30,
-    top_p: float = 0.9
+    top_p: float = 0.9,
+    repetition_penalty: float = 1.15
 ):
     """
     Generates story text with streaming yields for real-time typing effect in Gradio.
@@ -76,7 +77,15 @@ def generate_story_streaming(
 
         # Forward pass: get logits for last position
         logits, _ = m(idx_cond)
-        logits = logits[:, -1, :] # (1, vocab_size)
+        logits = logits[:, -1, :].clone() # (1, vocab_size)
+
+        # Repetition Penalty: discount logits of already seen tokens to prevent loops
+        if repetition_penalty != 1.0:
+            for token_id in set(idx[0].tolist()):
+                if logits[0, token_id] > 0:
+                    logits[0, token_id] /= repetition_penalty
+                else:
+                    logits[0, token_id] *= repetition_penalty
 
         # Temperature scaling
         logits = logits / max(temperature, 1e-5)
@@ -105,14 +114,17 @@ def generate_story_streaming(
         # Append next token
         idx = torch.cat((idx, idx_next), dim=1)
 
-        # Check for EOS
-        if idx_next.item() == tok.eos_token_id:
-            current_text += "\n\n[End of Story]"
+        # Decode accumulated tokens
+        decoded = tok.decode(idx[0].tolist())
+
+        # If model generated end-of-text, cleanly terminate without bleeding into next story
+        if "<|endoftext|>" in decoded:
+            clean_story = decoded.split("<|endoftext|>")[0].strip()
+            current_text = clean_story + "\n\n[End of Story]"
             yield current_text
             break
 
-        # Decode newly appended token and yield text
-        current_text = tok.decode(idx[0].tolist()).replace("<|endoftext|>", "\n\n[End of Story]")
+        current_text = decoded
         yield current_text
 
 
@@ -158,6 +170,11 @@ def create_app():
                         label="Top-P (Nucleus)",
                         info="Keeps smallest pool of tokens covering P% cumulative probability."
                     )
+                    rep_penalty_slider = gr.Slider(
+                        minimum=1.0, maximum=1.5, value=1.15, step=0.05,
+                        label="Repetition Penalty",
+                        info="Penalizes repeating recently generated words (1.0 = none, 1.15 = balanced)."
+                    )
 
                 with gr.Row():
                     generate_btn = gr.Button("✨ Generate Story", variant="primary", scale=2)
@@ -184,7 +201,7 @@ def create_app():
 
         generate_btn.click(
             fn=generate_story_streaming,
-            inputs=[prompt_input, max_tokens_slider, temp_slider, top_k_slider, top_p_slider],
+            inputs=[prompt_input, max_tokens_slider, temp_slider, top_k_slider, top_p_slider, rep_penalty_slider],
             outputs=story_output
         )
 
