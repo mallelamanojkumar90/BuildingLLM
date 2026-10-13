@@ -223,10 +223,16 @@ def create_app():
     return demo
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Run TinyStories Mini-GPT Web App")
+    parser.add_argument("--share", action="store_true", help="Create a free public gradio.live link")
+    parser.add_argument("--port", type=int, default=7860, help="Local server port")
+    args = parser.parse_args()
+
     demo = create_app()
     demo.launch(
-        server_name="127.0.0.1",
-        server_port=7860,
+        server_name="0.0.0.0" if args.share else "127.0.0.1",
+        server_port=args.port,
         css=CUSTOM_CSS,
-        share=False
+        share=args.share
     )
