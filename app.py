@@ -126,7 +126,7 @@ def create_app():
     #story-output textarea { font-family: 'Georgia', serif; font-size: 1.1rem; line-height: 1.6; }
     """
 
-    with gr.Blocks(title=title, css=custom_css) as demo:
+    with gr.Blocks(title=title) as demo:
         gr.Markdown(f"# {title}")
         gr.Markdown(description)
 
@@ -173,15 +173,13 @@ def create_app():
 
         gr.Examples(
             examples=[
-                ["Once upon a time, Lily found a sparkling green stone in the garden", 120, 0.8, 30, 0.9],
-                ["Once upon a time, Timmy found a little puppy in the backyard", 120, 0.8, 30, 0.9],
-                ["One sunny morning, Mia and her mom went to the big park", 120, 0.75, 25, 0.9],
-                ["There was once a little bird that wanted to fly over the clouds", 120, 0.85, 35, 0.9]
+                ["Once upon a time, Lily found a sparkling green stone in the garden"],
+                ["Once upon a time, Timmy found a little puppy in the backyard"],
+                ["One sunny morning, Mia and her mom went to the big park"],
+                ["There was once a little bird that wanted to fly over the clouds"]
             ],
-            inputs=[prompt_input, max_tokens_slider, temp_slider, top_k_slider, top_p_slider],
-            outputs=story_output,
-            fn=generate_story_streaming,
-            cache_examples=False
+            inputs=[prompt_input],
+            label="Click an Example to Load:"
         )
 
         generate_btn.click(
@@ -209,4 +207,9 @@ def create_app():
 
 if __name__ == "__main__":
     demo = create_app()
-    demo.launch(server_name="127.0.0.1", server_port=7860, share=False)
+    demo.launch(
+        server_name="127.0.0.1",
+        server_port=7860,
+        css=custom_css,
+        share=False
+    )
