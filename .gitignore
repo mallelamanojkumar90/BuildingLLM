@@ -89,3 +89,6 @@ data/*.parquet
 # Logs
 *.log
 wandb/
+
+# Deployment staging
+hf_space_dist/
