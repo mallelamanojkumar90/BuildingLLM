@@ -92,3 +92,4 @@ wandb/
 
 # Deployment staging
 hf_space_dist/
+hf_space/
