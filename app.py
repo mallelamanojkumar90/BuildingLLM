@@ -15,6 +15,11 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 CHECKPOINT_PATH = os.path.join("checkpoints", "best_model.pt")
 TOKENIZER_DIR = "tokenizer_data"
 
+CUSTOM_CSS = """
+.gradio-container { max-width: 850px; margin: auto; }
+#story-output textarea { font-family: 'Georgia', serif; font-size: 1.1rem; line-height: 1.6; }
+"""
+
 # Global model and tokenizer handles
 model = None
 tokenizer = None
@@ -121,11 +126,6 @@ def create_app():
     Type a story starter or pick an example below to watch the model generate a children's story in real time!
     """
 
-    custom_css = """
-    .gradio-container { max-width: 850px; margin: auto; }
-    #story-output textarea { font-family: 'Georgia', serif; font-size: 1.1rem; line-height: 1.6; }
-    """
-
     with gr.Blocks(title=title) as demo:
         gr.Markdown(f"# {title}")
         gr.Markdown(description)
@@ -141,7 +141,7 @@ def create_app():
 
                 with gr.Accordion("⚙️ Generation Settings", open=False):
                     max_tokens_slider = gr.Slider(
-                        minimum=30, maximum=250, value=120, step=10, label="Max New Tokens"
+                        minimum=10, maximum=300, value=120, step=5, label="Max New Tokens"
                     )
                     temp_slider = gr.Slider(
                         minimum=0.1, maximum=1.5, value=0.8, step=0.05,
@@ -210,6 +210,6 @@ if __name__ == "__main__":
     demo.launch(
         server_name="127.0.0.1",
         server_port=7860,
-        css=custom_css,
+        css=CUSTOM_CSS,
         share=False
     )
